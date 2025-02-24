@@ -1,46 +1,68 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:8080/api';
-
 const api = axios.create({
-  baseURL: API_BASE_URL,
+  baseURL: 'http://localhost:8081',
+  headers: {
+    'Content-Type': 'application/json',
+  },
 });
 
-// Add token to requests
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+// Add a request interceptor to include the JWT token
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
   }
-  return config;
-});
+);
 
-export const login = async (username, password) => {
-  const response = await api.post('/auth/login', { username, password });
+// Authentication
+export const login = async (credentials) => {
+  const response = await api.post('/api/auth/login', credentials);
   return response.data;
 };
 
-export const getMonthlyCheckinStats = async (username) => {
-  const response = await api.get(`/visits/stats/monthly?username=${username}`);
+// User endpoints
+export const getUserProfile = async (userId) => {
+  const response = await api.get(`/api/users/${userId}`);
   return response.data;
 };
 
-export const getPlannedVisits = async (username) => {
-  const response = await api.get(`/visits/planned?username=${username}`);
+export const getUserCheckins = async (userId) => {
+  const response = await api.get(`/api/users/${userId}/checkins`);
   return response.data;
 };
 
-export const planVisit = async (visitData) => {
-  const response = await api.post('/visits/plan', visitData);
+// Visit endpoints
+export const getPlannedVisits = async () => {
+  const response = await api.get('/api/visits/planned');
   return response.data;
 };
 
-export const getManagerPlannedVisits = async (managerUsername) => {
-  const response = await api.get(`/visits/manager/planned?managerUsername=${managerUsername}`);
+// Manager endpoints
+export const getTeamMembers = async (managerId) => {
+  const response = await api.get(`/api/manager/users?managerId=${managerId}`);
   return response.data;
 };
 
-export const getManagerCheckins = async (managerUsername) => {
-  const response = await api.get(`/visits/manager/checkins?managerUsername=${managerUsername}`);
+export const getTeamCheckins = async (managerId) => {
+  const response = await api.get(`/api/manager/team?managerId=${managerId}`);
   return response.data;
 };
+
+export const addTeamMember = async (managerId, userData) => {
+  const response = await api.post(`/api/manager/users?managerId=${managerId}`, userData);
+  return response.data;
+};
+
+export const getMonthlyCheckinStats = async () => {
+  const response = await api.get('/api/visits/stats/monthly');
+  return response.data;
+};
+
+export { api };
