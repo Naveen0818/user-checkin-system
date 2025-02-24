@@ -31,7 +31,7 @@ A Java Spring Boot application that manages user check-ins and events with role-
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/user-checkin-system.git
+git clone https://github.com/Naveen0818/user-checkin-system.git
 cd user-checkin-system
 ```
 
