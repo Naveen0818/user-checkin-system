@@ -33,5 +33,19 @@ build/
 .vscode/
 
 ### Application Properties ###
-# Uncomment the following line if you want to exclude application.properties with sensitive data
-# src/main/resources/application.properties
+src/main/resources/application.properties
+
+### macOS ###
+.DS_Store
+.AppleDouble
+.LSOverride
+
+### Eclipse ###
+.metadata/
+bin/
+tmp/
+*.tmp
+*.bak
+*.swp
+*~.nib
+local.properties
