@@ -1,0 +1,105 @@
+scalar DateTime
+
+type Query {
+    # User queries
+    user(id: ID!): User
+    userByUsername(username: String!): User
+    allUsers: [User]
+    
+    # CheckIn queries
+    checkIn(id: ID!): CheckIn
+    checkInsByUser(userId: ID!): [CheckIn]
+    checkInsByManager(managerId: ID!): [CheckIn]
+    
+    # Visit queries
+    visit(id: ID!): Visit
+    visitsByUser(userId: ID!): [Visit]
+    visitsByLocation(locationId: ID!): [Visit]
+    
+    # Location queries
+    location(id: ID!): Location
+    locationsByManager(managerId: ID!): [Location]
+}
+
+type Mutation {
+    # User mutations
+    createUser(input: UserInput!): User
+    updateUser(id: ID!, input: UserInput!): User
+    deleteUser(id: ID!): Boolean
+    
+    # CheckIn mutations
+    createCheckIn(input: CheckInInput!): CheckIn
+    updateCheckIn(id: ID!, input: CheckInInput!): CheckIn
+    
+    # Visit mutations
+    createVisit(input: VisitInput!): Visit
+    updateVisit(id: ID!, input: VisitInput!): Visit
+    deleteVisit(id: ID!): Boolean
+}
+
+type User {
+    id: ID!
+    username: String!
+    email: String!
+    firstName: String!
+    lastName: String!
+    role: String!
+    managerId: ID
+    locationId: ID
+    checkIns: [CheckIn]
+    visits: [Visit]
+}
+
+type CheckIn {
+    id: ID!
+    userId: ID!
+    locationId: ID!
+    timestamp: DateTime!
+    status: String!
+    user: User
+    location: Location
+}
+
+type Visit {
+    id: ID!
+    userId: ID!
+    locationId: ID!
+    scheduledTime: DateTime!
+    status: String!
+    user: User
+    location: Location
+}
+
+type Location {
+    id: ID!
+    name: String!
+    address: String!
+    managerId: ID!
+    manager: User
+    checkIns: [CheckIn]
+    visits: [Visit]
+}
+
+input UserInput {
+    username: String!
+    email: String!
+    firstName: String!
+    lastName: String!
+    password: String
+    role: String!
+    managerId: ID
+    locationId: ID
+}
+
+input CheckInInput {
+    userId: ID!
+    locationId: ID!
+    status: String!
+}
+
+input VisitInput {
+    userId: ID!
+    locationId: ID!
+    scheduledTime: DateTime!
+    status: String!
+}

@@ -24,32 +24,33 @@ public class ManagerController {
     @Autowired
     private EventRepository eventRepository;
 
-    @PostMapping("/users")
-    public ResponseEntity<?> createUser(@RequestBody Map<String, String> request) {
-        User manager = userRepository.findByUsername(request.get("managerUsername"))
-            .orElseThrow(() -> new RuntimeException("Manager not found"));
-            
-        Location location = locationRepository.findByName(request.get("locationName"));
-        if (location == null) {
-            throw new RuntimeException("Location not found");
-        }
+    @GetMapping("/users")
+    public ResponseEntity<List<User>> getUsersForManager(@RequestParam Long managerId) {
+        User manager = userRepository.findById(managerId)
+                .orElseThrow(() -> new RuntimeException("Manager not found"));
 
-        User newUser = new User();
-        newUser.setUsername(request.get("username"));
-        newUser.setPassword(request.get("password")); // Note: Should be encoded
-        newUser.setManager(manager);
-        newUser.setLocation(location);
-        newUser.setRole(UserRole.USER);
-        
-        userRepository.save(newUser);
-        return ResponseEntity.ok().body("User created successfully");
+        List<User> users = userRepository.findByManager(manager);
+        return ResponseEntity.ok(users);
     }
 
-    @GetMapping("/users")
-    public ResponseEntity<List<User>> getManagedUsers(@RequestParam String managerUsername) {
-        User manager = userRepository.findByUsername(managerUsername)
-            .orElseThrow(() -> new RuntimeException("Manager not found"));
-        return ResponseEntity.ok(manager.getManagedUsers());
+    @PostMapping("/users")
+    public ResponseEntity<User> createUser(@RequestBody User user, @RequestParam Long managerId) {
+        User manager = userRepository.findById(managerId)
+                .orElseThrow(() -> new RuntimeException("Manager not found"));
+
+        user.setManager(manager);
+        user.setRole(UserRole.USER.name());
+        User savedUser = userRepository.save(user);
+        return ResponseEntity.ok(savedUser);
+    }
+
+    @GetMapping("/team")
+    public ResponseEntity<List<User>> getTeam(@RequestParam Long managerId) {
+        User manager = userRepository.findById(managerId)
+                .orElseThrow(() -> new RuntimeException("Manager not found"));
+
+        List<User> team = userRepository.findByManager(manager);
+        return ResponseEntity.ok(team);
     }
 
     @PostMapping("/events")

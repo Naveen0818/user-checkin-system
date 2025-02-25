@@ -2,5 +2,7 @@ package com.example.model;
 
 public enum UserRole {
     USER,
-    MANAGER
+    MANAGER,
+    EXECUTIVE,
+    CEO
 }

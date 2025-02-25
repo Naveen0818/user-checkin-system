@@ -1,32 +1,27 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Box, Container, Paper, TextField, Button, Typography } from '@mui/material';
 import { useAuth } from '../utils/AuthContext';
+import {
+  Container,
+  Box,
+  TextField,
+  Button,
+  Typography,
+  Alert,
+  Paper
+} from '@mui/material';
 
 const Login = () => {
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const { login, error } = useAuth();
   const navigate = useNavigate();
-  const { login } = useAuth();
-  const [credentials, setCredentials] = useState({
-    username: '',
-    password: '',
-  });
-  const [error, setError] = useState('');
-
-  const handleChange = (e) => {
-    setCredentials({
-      ...credentials,
-      [e.target.name]: e.target.value,
-    });
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    try {
-      await login(credentials);
+    const success = await login(username, password);
+    if (success) {
       navigate('/dashboard');
-    } catch (error) {
-      setError('Invalid username or password');
-      console.error('Login error:', error);
     }
   };
 
@@ -41,10 +36,15 @@ const Login = () => {
         }}
       >
         <Paper elevation={3} sx={{ p: 4, width: '100%' }}>
-          <Typography component="h1" variant="h5" align="center" gutterBottom>
+          <Typography component="h1" variant="h5" sx={{ mb: 3 }}>
             Sign In
           </Typography>
-          <form onSubmit={handleSubmit}>
+          {error && (
+            <Alert severity="error" sx={{ mb: 2 }}>
+              {error}
+            </Alert>
+          )}
+          <Box component="form" onSubmit={handleSubmit}>
             <TextField
               margin="normal"
               required
@@ -54,8 +54,8 @@ const Login = () => {
               name="username"
               autoComplete="username"
               autoFocus
-              value={credentials.username}
-              onChange={handleChange}
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
             />
             <TextField
               margin="normal"
@@ -66,14 +66,9 @@ const Login = () => {
               type="password"
               id="password"
               autoComplete="current-password"
-              value={credentials.password}
-              onChange={handleChange}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
             />
-            {error && (
-              <Typography color="error" align="center" sx={{ mt: 2 }}>
-                {error}
-              </Typography>
-            )}
             <Button
               type="submit"
               fullWidth
@@ -82,7 +77,7 @@ const Login = () => {
             >
               Sign In
             </Button>
-          </form>
+          </Box>
         </Paper>
       </Box>
     </Container>

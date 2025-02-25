@@ -1,26 +1,50 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Paper, Typography, Table, TableBody, TableCell, TableHead, TableRow, TablePagination } from '@mui/material';
+import {
+  Container,
+  Box,
+  Typography,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  CircularProgress,
+  TablePagination,
+  Alert
+} from '@mui/material';
 import { useAuth } from '../utils/AuthContext';
-import DashboardLayout from '../components/DashboardLayout';
-import { api } from '../services/api';
+import apiClient from '../utils/apiClient';
 
 const History = () => {
   const { user } = useAuth();
-  const [checkins, setCheckins] = useState([]);
+  const [checkIns, setCheckIns] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
   useEffect(() => {
-    const fetchCheckins = async () => {
+    const fetchHistory = async () => {
       try {
-        const response = await api.get(`/api/users/${user.id}/checkins`);
-        setCheckins(response.data);
-      } catch (error) {
-        console.error('Error fetching checkins:', error);
+        setLoading(true);
+        // Toggle between REST and GraphQL
+        apiClient.setUseGraphQL(true); // Try GraphQL for this view
+        const response = await apiClient.getUserCheckIns(user.id);
+        setCheckIns(response.data);
+        setError(null);
+      } catch (err) {
+        setError('Failed to load check-in history');
+        console.error('History error:', err);
+      } finally {
+        setLoading(false);
       }
     };
 
-    fetchCheckins();
+    if (user) {
+      fetchHistory();
+    }
   }, [user]);
 
   const handleChangePage = (event, newPage) => {
@@ -32,13 +56,28 @@ const History = () => {
     setPage(0);
   };
 
+  if (loading) {
+    return (
+      <Box display="flex" justifyContent="center" alignItems="center" minHeight="80vh">
+        <CircularProgress />
+      </Box>
+    );
+  }
+
   return (
-    <DashboardLayout>
-      <Box sx={{ flexGrow: 1 }}>
-        <Paper sx={{ p: 2, mb: 2 }}>
-          <Typography variant="h6" gutterBottom>
-            Check-in History
-          </Typography>
+    <Container maxWidth="lg">
+      <Box sx={{ mt: 4, mb: 4 }}>
+        <Typography variant="h4" gutterBottom>
+          Check-in History
+        </Typography>
+
+        {error && (
+          <Alert severity="error" sx={{ mb: 2 }}>
+            {error}
+          </Alert>
+        )}
+
+        <TableContainer component={Paper}>
           <Table>
             <TableHead>
               <TableRow>
@@ -48,15 +87,17 @@ const History = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {checkins
+              {checkIns
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                .map((checkin) => (
-                  <TableRow key={checkin.id}>
+                .map((checkIn) => (
+                  <TableRow key={checkIn.id}>
                     <TableCell>
-                      {new Date(checkin.checkinTime).toLocaleString()}
+                      {new Date(checkIn.timestamp).toLocaleString()}
                     </TableCell>
-                    <TableCell>{checkin.location?.name || 'N/A'}</TableCell>
-                    <TableCell>{checkin.status || 'Completed'}</TableCell>
+                    <TableCell>
+                      {checkIn.location?.name || 'N/A'}
+                    </TableCell>
+                    <TableCell>{checkIn.status}</TableCell>
                   </TableRow>
                 ))}
             </TableBody>
@@ -64,15 +105,15 @@ const History = () => {
           <TablePagination
             rowsPerPageOptions={[5, 10, 25]}
             component="div"
-            count={checkins.length}
+            count={checkIns.length}
             rowsPerPage={rowsPerPage}
             page={page}
             onPageChange={handleChangePage}
             onRowsPerPageChange={handleChangeRowsPerPage}
           />
-        </Paper>
+        </TableContainer>
       </Box>
-    </DashboardLayout>
+    </Container>
   );
 };
 

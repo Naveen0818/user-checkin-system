@@ -2,6 +2,7 @@ package com.example.controller;
 
 import com.example.model.Checkin;
 import com.example.model.User;
+import com.example.repository.CheckinRepository;
 import com.example.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +20,7 @@ public class UserController {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final CheckinRepository checkinRepository;
 
     @PostMapping("/register")
     public ResponseEntity<Object> registerUser(@RequestBody User user) {
@@ -57,8 +59,7 @@ public class UserController {
                     Checkin checkin = new Checkin();
                     checkin.setUser(user);
                     checkin.setCheckinTime(LocalDateTime.now());
-                    user.getCheckins().add(checkin);
-                    userRepository.save(user);
+                    Checkin savedCheckin = checkinRepository.save(checkin);
                     return ResponseEntity.ok("Checkin successful");
                 })
                 .orElse(ResponseEntity.badRequest().body("User not found"));

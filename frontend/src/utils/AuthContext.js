@@ -1,45 +1,44 @@
-import React, { createContext, useContext, useState } from 'react';
-import { login as apiLogin } from '../services/api';
+import React, { createContext, useState, useContext } from 'react';
 import { jwtDecode } from 'jwt-decode';
+import apiClient from './apiClient';
 
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(() => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      try {
-        return jwtDecode(token);
-      } catch (error) {
-        localStorage.removeItem('token');
-        return null;
-      }
-    }
-    return null;
-  });
+  const [user, setUser] = useState(null);
+  const [error, setError] = useState(null);
 
-  const login = async (credentials) => {
+  const login = async (username, password) => {
     try {
-      const response = await apiLogin(credentials);
-      const { token } = response;
+      const response = await apiClient.login({ username, password });
+      const { token, user: userData } = response.data;
       localStorage.setItem('token', token);
-      const decoded = jwtDecode(token);
-      setUser(decoded);
-    } catch (error) {
-      throw error;
+      
+      const decodedToken = jwtDecode(token);
+      setUser({ ...userData, ...decodedToken });
+      setError(null);
+      return true;
+    } catch (err) {
+      setError(err.response?.data || 'An error occurred during login');
+      return false;
     }
   };
 
   const logout = () => {
     localStorage.removeItem('token');
     setUser(null);
+    apiClient.clearToken();
   };
 
-  return (
-    <AuthContext.Provider value={{ user, login, logout }}>
-      {children}
-    </AuthContext.Provider>
-  );
+  const value = {
+    user,
+    error,
+    login,
+    logout,
+    isAuthenticated: !!user
+  };
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
 export const useAuth = () => {
