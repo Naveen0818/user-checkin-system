@@ -1,11 +1,8 @@
 package com.example.graphql;
 
-import com.example.model.CheckIn;
-import com.example.repository.CheckInRepository;
-import com.netflix.graphql.dgs.DgsComponent;
-import com.netflix.graphql.dgs.DgsQuery;
-import com.netflix.graphql.dgs.DgsMutation;
-import com.netflix.graphql.dgs.InputArgument;
+import com.example.model.Checkin;
+import com.example.repository.*;
+import com.netflix.graphql.dgs.*;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
@@ -18,40 +15,40 @@ public class CheckInDataFetcher {
     private CheckInRepository checkInRepository;
 
     @DgsQuery
-    public CheckIn checkIn(@InputArgument String id) {
+    public Checkin checkIn(@InputArgument String id) {
         return checkInRepository.findById(Long.parseLong(id))
                 .orElseThrow(() -> new RuntimeException("CheckIn not found"));
     }
 
     @DgsQuery
-    public List<CheckIn> checkInsByUser(@InputArgument String userId) {
+    public List<Checkin> checkInsByUser(@InputArgument String userId) {
         return checkInRepository.findByUserId(Long.parseLong(userId));
     }
 
     @DgsQuery
-    public List<CheckIn> checkInsByManager(@InputArgument String managerId) {
+    public List<Checkin> checkInsByManager(@InputArgument String managerId) {
         return checkInRepository.findByManagerId(Long.parseLong(managerId));
     }
 
-    @DgsMutation
-    public CheckIn createCheckIn(@InputArgument("input") Map<String, Object> input) {
-        CheckIn checkIn = new CheckIn();
-        checkIn.setUserId(Long.parseLong((String) input.get("userId")));
+   /* @DgsMutation
+    public Checkin createCheckIn(@InputArgument("input") Map<String, Object> input) {
+        Checkin checkIn = new Checkin();
+        checkIn.setId(Long.parseLong((String) input.get("userId")));
         checkIn.setLocationId(Long.parseLong((String) input.get("locationId")));
         checkIn.setStatus((String) input.get("status"));
         checkIn.setTimestamp(java.time.LocalDateTime.now());
-        
+
         return checkInRepository.save(checkIn);
-    }
+    }*/
 
     @DgsMutation
-    public CheckIn updateCheckIn(@InputArgument String id, @InputArgument("input") Map<String, Object> input) {
-        CheckIn checkIn = checkInRepository.findById(Long.parseLong(id))
+    public Checkin updateCheckIn(@InputArgument String id, @InputArgument("input") Map<String, Object> input) {
+        Checkin checkIn = checkInRepository.findById(Long.parseLong(id))
                 .orElseThrow(() -> new RuntimeException("CheckIn not found"));
         
-        if (input.get("status") != null) {
+        /*if (input.get("status") != null) {
             checkIn.setStatus((String) input.get("status"));
-        }
+        }*/
         
         return checkInRepository.save(checkIn);
     }

@@ -1,8 +1,7 @@
 package com.example.controller;
 
-import com.example.model.Checkin;
-import com.example.model.User;
-import com.example.repository.CheckinRepository;
+import com.example.model.*;
+import com.example.repository.CheckInRepository;
 import com.example.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +19,7 @@ public class UserController {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final CheckinRepository checkinRepository;
+    private final CheckInRepository checkinRepository;
 
     @PostMapping("/register")
     public ResponseEntity<Object> registerUser(@RequestBody User user) {

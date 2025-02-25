@@ -2,10 +2,7 @@ package com.example.graphql;
 
 import com.example.model.User;
 import com.example.repository.UserRepository;
-import com.netflix.graphql.dgs.DgsComponent;
-import com.netflix.graphql.dgs.DgsQuery;
-import com.netflix.graphql.dgs.DgsMutation;
-import com.netflix.graphql.dgs.InputArgument;
+import com.netflix.graphql.dgs.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -48,12 +45,12 @@ public class UserDataFetcher {
         user.setPassword(passwordEncoder.encode((String) input.get("password")));
         user.setRole((String) input.get("role"));
         
-        if (input.get("managerId") != null) {
+        /*if (input.get("managerId") != null) {
             user.setManagerId(Long.parseLong((String) input.get("managerId")));
         }
         if (input.get("locationId") != null) {
             user.setLocationId(Long.parseLong((String) input.get("locationId")));
-        }
+        }*/
         
         return userRepository.save(user);
     }
@@ -69,9 +66,9 @@ public class UserDataFetcher {
         if (input.get("lastName") != null) user.setLastName((String) input.get("lastName"));
         if (input.get("password") != null) user.setPassword(passwordEncoder.encode((String) input.get("password")));
         if (input.get("role") != null) user.setRole((String) input.get("role"));
-        if (input.get("managerId") != null) user.setManagerId(Long.parseLong((String) input.get("managerId")));
+        /*if (input.get("managerId") != null) user.setManagerId(Long.parseLong((String) input.get("managerId")));
         if (input.get("locationId") != null) user.setLocationId(Long.parseLong((String) input.get("locationId")));
-        
+        */
         return userRepository.save(user);
     }
 

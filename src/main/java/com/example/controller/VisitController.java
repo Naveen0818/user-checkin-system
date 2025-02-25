@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 public class VisitController {
     
     @Autowired
-    private CheckinRepository checkinRepository;
+    private CheckInRepository checkinRepository;
     
     @Autowired
     private PlannedVisitRepository plannedVisitRepository;
